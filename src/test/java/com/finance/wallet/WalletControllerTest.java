@@ -1,12 +1,11 @@
 package com.finance.wallet;
 
-import com.finance.wallet.controller.WalletController;
-import com.finance.wallet.entity.Wallet;
-import com.finance.wallet.service.JwtService;
-import com.finance.wallet.service.WalletService;
+import java.math.BigDecimal;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
-
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -14,17 +13,16 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.math.BigDecimal;
-import java.util.List;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.finance.wallet.controller.WalletController;
+import com.finance.wallet.entity.Wallet;
+import com.finance.wallet.repository.UserRepository;
+import com.finance.wallet.service.JwtService;
+import com.finance.wallet.service.WalletService;
 
 
 @WebMvcTest(WalletController.class)
@@ -39,6 +37,9 @@ class WalletControllerTest {
 
     @MockitoBean
     private JwtService jwtService;
+
+    @MockitoBean
+    private UserRepository userRepository;
 
 
     @Test

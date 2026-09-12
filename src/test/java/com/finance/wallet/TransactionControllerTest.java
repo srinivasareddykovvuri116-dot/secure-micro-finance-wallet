@@ -1,14 +1,14 @@
 package com.finance.wallet;
 
-import com.finance.wallet.controller.TransactionController;
-import com.finance.wallet.dto.TransactionResponse;
-import com.finance.wallet.entity.TransactionStatus;
-import com.finance.wallet.entity.TransactionType;
-import com.finance.wallet.service.JwtService;
-import com.finance.wallet.service.TransactionService;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
-
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -17,19 +17,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.when;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.finance.wallet.controller.TransactionController;
+import com.finance.wallet.dto.TransactionResponse;
+import com.finance.wallet.entity.TransactionStatus;
+import com.finance.wallet.entity.TransactionType;
+import com.finance.wallet.repository.UserRepository;
+import com.finance.wallet.service.JwtService;
+import com.finance.wallet.service.TransactionService;
 
 
 @WebMvcTest(TransactionController.class)
@@ -44,6 +42,9 @@ class TransactionControllerTest {
 
     @MockitoBean
     private JwtService jwtService;
+
+    @MockitoBean
+    private UserRepository userRepository;
 
 
     @Test
@@ -130,6 +131,7 @@ class TransactionControllerTest {
         .andExpect(jsonPath("$.content[0].amount").value(100.00));
     }
 
+
     @Test
     void getTransactionsShouldFilterByStatus() throws Exception {
 
@@ -169,6 +171,7 @@ class TransactionControllerTest {
         .andExpect(jsonPath("$.content[0].status").value("SUCCESS"))
         .andExpect(jsonPath("$.content[0].amount").value(100.00));
     }
+
 
     @Test
     void getTransactionsShouldFilterByTypeAndStatus() throws Exception {

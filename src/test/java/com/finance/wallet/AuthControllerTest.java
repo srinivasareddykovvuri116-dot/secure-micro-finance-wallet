@@ -1,24 +1,22 @@
 package com.finance.wallet;
 
-import com.finance.wallet.controller.AuthController;
-import com.finance.wallet.entity.User;
-import com.finance.wallet.service.JwtService;
-import com.finance.wallet.service.UserService;
-
 import org.junit.jupiter.api.Test;
-
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.finance.wallet.controller.AuthController;
+import com.finance.wallet.entity.User;
+import com.finance.wallet.repository.UserRepository;
+import com.finance.wallet.service.JwtService;
+import com.finance.wallet.service.UserService;
 
 
 @WebMvcTest(AuthController.class)
@@ -33,6 +31,9 @@ class AuthControllerTest {
 
     @MockitoBean
     private JwtService jwtService;
+
+    @MockitoBean
+    private UserRepository userRepository;
 
 
     @Test
@@ -60,6 +61,7 @@ class AuthControllerTest {
         )
         .andExpect(status().isCreated());
     }
+
 
     @Test
     void registerShouldReturnBadRequestWhenEmailIsInvalid() throws Exception {
@@ -138,5 +140,4 @@ class AuthControllerTest {
         )
         .andExpect(status().isBadRequest());
     }
-
 }

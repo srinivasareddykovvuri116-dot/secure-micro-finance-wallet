@@ -1,13 +1,13 @@
 package com.finance.wallet.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.finance.wallet.entity.User;
 import com.finance.wallet.entity.Wallet;
 import com.finance.wallet.repository.UserRepository;
 import com.finance.wallet.repository.WalletRepository;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
@@ -55,6 +55,10 @@ public class UserService {
 
     if (!passwordEncoder.matches(password, user.getPasswordHash())) {
         throw new IllegalArgumentException("Invalid email or password");
+    }
+
+    if (!user.isActive()) {
+        throw new IllegalArgumentException("Account is suspended");
     }
 
     return user;

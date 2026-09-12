@@ -23,6 +23,9 @@ public class User {
     @Column(nullable = false)
     private String role = "ROLE_USER";
 
+    @Column(nullable = false)
+    private boolean active = true;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -76,5 +79,12 @@ public class User {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+    public boolean isActive() {
+    return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }
