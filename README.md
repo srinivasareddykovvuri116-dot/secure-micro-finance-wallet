@@ -4,6 +4,8 @@ A full-stack financial wallet application built with **Spring Boot, React, and P
 
 The platform supports secure user authentication, wallet management, peer-to-peer transfers, transaction history, financial analytics, administrative controls, and audit logging.
 
+---
+
 ## Architecture
 
 
@@ -98,7 +100,6 @@ Important activities are recorded in an audit log, including:
 
 ---
 
-
 ## Application Screenshots
 
 ### Login
@@ -125,8 +126,7 @@ Important activities are recorded in an audit log, including:
 
 ![Admin Dashboard](docs/screenshots/admin.png)
 
-
-
+---
 
 ## Technology Stack
 
@@ -241,6 +241,8 @@ npm run build
 
 Both completed successfully.
 
+---
+
 ## Project Structure
 
 
@@ -280,6 +282,9 @@ secure-micro-finance-wallet/
 ├── docker-compose.yml
 ├── pom.xml
 └── README.md
+
+
+---
 
 ## Running with Docker
 
