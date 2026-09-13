@@ -98,6 +98,36 @@ Important activities are recorded in an audit log, including:
 
 ---
 
+
+## Application Screenshots
+
+### Login
+
+![Login](docs/screenshots/login.png)
+
+### Dashboard & Analytics
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Wallet Management
+
+![Wallet](docs/screenshots/wallet.png)
+
+### Peer-to-Peer Transfer
+
+![Transfer](docs/screenshots/transfer.png)
+
+### Transaction History
+
+![Transaction History](docs/screenshots/transactions.png)
+
+### Admin Dashboard
+
+![Admin Dashboard](docs/screenshots/admin.png)
+
+
+
+
 ## Technology Stack
 
 ### Backend
