@@ -20,6 +20,10 @@ PostgreSQL
 
 The application is implemented as a **modular monolith** and containerized using **Docker Compose**.
 
+### Architecture Diagram
+
+![Secure Micro-Finance & Wallet Platform Architecture](docs/architecture.png)
+
 ---
 
 ## Key Features
