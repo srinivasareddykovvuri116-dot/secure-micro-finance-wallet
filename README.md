@@ -241,8 +241,6 @@ npm run build
 
 Both completed successfully.
 
----
-
 ## Project Structure
 
 
@@ -259,6 +257,7 @@ secure-micro-finance-wallet/
 │   │   │   ├── repository/
 │   │   │   ├── security/
 │   │   │   └── service/
+│   │   │
 │   │   └── resources/
 │   │
 │   └── test/
@@ -272,6 +271,7 @@ secure-micro-finance-wallet/
 │   │   ├── layouts/
 │   │   ├── pages/
 │   │   └── services/
+│   │
 │   ├── Dockerfile
 │   ├── nginx.conf
 │   └── package.json
@@ -280,11 +280,6 @@ secure-micro-finance-wallet/
 ├── docker-compose.yml
 ├── pom.xml
 └── README.md
-
-
-
-
----
 
 ## Running with Docker
 
