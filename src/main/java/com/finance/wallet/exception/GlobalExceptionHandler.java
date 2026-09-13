@@ -25,8 +25,9 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException ex) {
 
         String message = ex.getBindingResult()
-                .getFieldError()
-                .getDefaultMessage();
+                .getFieldError() != null
+                ? ex.getBindingResult().getFieldError().getDefaultMessage()
+                : "Validation failed";
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

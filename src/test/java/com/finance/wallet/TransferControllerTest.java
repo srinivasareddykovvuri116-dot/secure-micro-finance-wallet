@@ -94,4 +94,122 @@ class TransferControllerTest {
                 new BigDecimal("50.00")
         );
     }
+
+
+    @Test
+        void transferShouldRejectZeroAmount() throws Exception {
+
+        mockMvc.perform(
+                post("/api/transfers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .principal(
+                                new UsernamePasswordAuthenticationToken(
+                                        "1",
+                                        null,
+                                        List.of()
+                                )
+                        )
+                        .content("""
+                                {
+                                        "receiverEmail": "receiver@test.com",
+                                        "amount": 0
+                                }
+                                """)
+        )
+        .andExpect(status().isBadRequest());
+        }
+
+
+        @Test
+        void transferShouldRejectNegativeAmount() throws Exception {
+
+        mockMvc.perform(
+                post("/api/transfers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .principal(
+                                new UsernamePasswordAuthenticationToken(
+                                        "1",
+                                        null,
+                                        List.of()
+                                )
+                        )
+                        .content("""
+                                {
+                                        "receiverEmail": "receiver@test.com",
+                                        "amount": -100
+                                }
+                                """)
+        )
+        .andExpect(status().isBadRequest());
+        }
+
+
+        @Test
+        void transferShouldRejectMissingAmount() throws Exception {
+
+        mockMvc.perform(
+                post("/api/transfers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .principal(
+                                new UsernamePasswordAuthenticationToken(
+                                        "1",
+                                        null,
+                                        List.of()
+                                )
+                        )
+                        .content("""
+                                {
+                                        "receiverEmail": "receiver@test.com"
+                                }
+                                """)
+        )
+        .andExpect(status().isBadRequest());
+        }
+
+
+        @Test
+        void transferShouldRejectMissingReceiverEmail() throws Exception {
+
+        mockMvc.perform(
+                post("/api/transfers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .principal(
+                                new UsernamePasswordAuthenticationToken(
+                                        "1",
+                                        null,
+                                        List.of()
+                                )
+                        )
+                        .content("""
+                                {
+                                        "amount": 50.00
+                                }
+                                """)
+        )
+        .andExpect(status().isBadRequest());
+        }
+
+
+        @Test
+        void transferShouldRejectInvalidReceiverEmail() throws Exception {
+
+        mockMvc.perform(
+                post("/api/transfers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .principal(
+                                new UsernamePasswordAuthenticationToken(
+                                        "1",
+                                        null,
+                                        List.of()
+                                )
+                        )
+                        .content("""
+                                {
+                                        "receiverEmail": "not-an-email",
+                                        "amount": 50.00
+                                }
+                                """)
+        )
+        .andExpect(status().isBadRequest());
+        }
 }

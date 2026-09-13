@@ -161,4 +161,68 @@ class WalletControllerTest {
         )
         .andExpect(status().isBadRequest());
     }
+
+
+    @Test
+        void depositShouldRejectZeroAmount() throws Exception {
+
+        mockMvc.perform(
+                post("/api/wallet/deposit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                        "amount": 0
+                                }
+                                """)
+        )
+        .andExpect(status().isBadRequest());
+        }
+
+
+        @Test
+        void depositShouldRejectNegativeAmount() throws Exception {
+
+        mockMvc.perform(
+                post("/api/wallet/deposit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                        "amount": -100
+                                }
+                                """)
+        )
+        .andExpect(status().isBadRequest());
+        }
+
+
+        @Test
+        void depositShouldRejectMissingAmount() throws Exception {
+
+        mockMvc.perform(
+                post("/api/wallet/deposit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                }
+                                """)
+        )
+        .andExpect(status().isBadRequest());
+        }
+
+
+        @Test
+        void withdrawShouldRejectMissingAmount() throws Exception {
+
+        mockMvc.perform(
+                post("/api/wallet/withdraw")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                }
+                                """)
+        )
+        .andExpect(status().isBadRequest());
+        }
+
+
 }

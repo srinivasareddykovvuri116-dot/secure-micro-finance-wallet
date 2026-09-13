@@ -27,6 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public JwtAuthenticationFilter(
             JwtService jwtService,
             UserRepository userRepository) {
+
         this.jwtService = jwtService;
         this.userRepository = userRepository;
     }
@@ -54,14 +55,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String userId = jwtService.extractUserId(token);
 
-        System.out.println("JWT userId = - JwtAuthenticationFilter.java:57" + userId);
-
         User user = userRepository.findById(Long.valueOf(userId))
                 .orElse(null);
-
-        System.out.println(
-                "JWT user active = " + (user != null && user.isActive())
-        );
 
         if (user == null || !user.isActive()) {
             filterChain.doFilter(request, response);
@@ -72,10 +67,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 new UsernamePasswordAuthenticationToken(
                         user.getId(),
                         null,
-                        List.of(new SimpleGrantedAuthority(user.getRole()))
+                        List.of(
+                                new SimpleGrantedAuthority(user.getRole())
+                        )
                 );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext()
+                .setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
     }

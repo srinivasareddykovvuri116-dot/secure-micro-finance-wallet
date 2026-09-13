@@ -15,15 +15,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final WalletRepository walletRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuditLogService auditLogService;
 
     public UserService(
             UserRepository userRepository,
             WalletRepository walletRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            AuditLogService auditLogService) {
 
         this.userRepository = userRepository;
         this.walletRepository = walletRepository;
         this.passwordEncoder = passwordEncoder;
+        this.auditLogService = auditLogService;
     }
 
     @Transactional
@@ -44,6 +47,11 @@ public class UserService {
         wallet.setUser(savedUser);
 
         walletRepository.save(wallet);
+        auditLogService.log(
+                savedUser,
+                "USER_REGISTERED",
+                "User registered successfully"
+        );
 
         return savedUser;
     }

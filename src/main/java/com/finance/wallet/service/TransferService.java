@@ -7,9 +7,10 @@ import com.finance.wallet.entity.Wallet;
 import com.finance.wallet.repository.TransactionRepository;
 import com.finance.wallet.repository.UserRepository;
 import com.finance.wallet.repository.WalletRepository;
+import com.finance.wallet.exception.ResourceNotFoundException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.finance.wallet.exception.ResourceNotFoundException;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -20,15 +21,18 @@ public class TransferService {
     private final UserRepository userRepository;
     private final WalletRepository walletRepository;
     private final TransactionRepository transactionRepository;
+    private final AuditLogService auditLogService;
 
     public TransferService(
             UserRepository userRepository,
             WalletRepository walletRepository,
-            TransactionRepository transactionRepository) {
+            TransactionRepository transactionRepository,
+            AuditLogService auditLogService) {
 
         this.userRepository = userRepository;
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
+        this.auditLogService = auditLogService;
     }
 
     @Transactional
@@ -38,7 +42,8 @@ public class TransferService {
             BigDecimal amount) {
 
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Amount must be greater than zero");
+            throw new IllegalArgumentException(
+                    "Amount must be greater than zero");
         }
 
         Long receiverUserId = userRepository.findByEmail(receiverEmail)
@@ -54,13 +59,17 @@ public class TransferService {
         Long firstUserId = Math.min(senderUserId, receiverUserId);
         Long secondUserId = Math.max(senderUserId, receiverUserId);
 
-        Wallet firstWallet = walletRepository.findByUserIdForUpdate(firstUserId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Wallet not found"));
+        Wallet firstWallet =
+                walletRepository.findByUserIdForUpdate(firstUserId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Wallet not found"));
 
-        Wallet secondWallet = walletRepository.findByUserIdForUpdate(secondUserId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Wallet not found"));
+        Wallet secondWallet =
+                walletRepository.findByUserIdForUpdate(secondUserId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Wallet not found"));
 
         Wallet senderWallet;
         Wallet receiverWallet;
@@ -74,7 +83,8 @@ public class TransferService {
         }
 
         if (senderWallet.getBalance().compareTo(amount) < 0) {
-            throw new IllegalArgumentException("Insufficient balance");
+            throw new IllegalArgumentException(
+                    "Insufficient balance");
         }
 
         senderWallet.setBalance(
@@ -86,6 +96,7 @@ public class TransferService {
         String referenceId = UUID.randomUUID().toString();
 
         Transaction sentTransaction = new Transaction();
+
         sentTransaction.setWallet(senderWallet);
         sentTransaction.setType(TransactionType.TRANSFER_SENT);
         sentTransaction.setAmount(amount);
@@ -93,14 +104,23 @@ public class TransferService {
         sentTransaction.setReferenceId(referenceId);
 
         Transaction receivedTransaction = new Transaction();
+
         receivedTransaction.setWallet(receiverWallet);
-        receivedTransaction.setType(TransactionType.TRANSFER_RECEIVED);
+        receivedTransaction.setType(
+                TransactionType.TRANSFER_RECEIVED);
         receivedTransaction.setAmount(amount);
         receivedTransaction.setStatus(TransactionStatus.SUCCESS);
         receivedTransaction.setReferenceId(referenceId);
 
         transactionRepository.save(sentTransaction);
         transactionRepository.save(receivedTransaction);
+
+        auditLogService.log(
+                senderWallet.getUser(),
+                "TRANSFER",
+                "amount=" + amount
+                        + ", receiver=" + receiverEmail
+        );
 
         return referenceId;
     }

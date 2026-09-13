@@ -6,15 +6,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -34,8 +39,12 @@ class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private AuditLogService auditLogService;
+
     @InjectMocks
     private UserService userService;
+
 
     @Test
     void loginUser_shouldRejectSuspendedUser() {
@@ -60,13 +69,19 @@ class UserServiceTest {
                 )
         );
 
-        assertEquals("Account is suspended", exception.getMessage());
-
-        verify(userRepository).findByEmail("receiver@example.com");
-        verify(passwordEncoder).matches(
-                "User12345",
-                "hashed-password"
+        assertEquals(
+                "Account is suspended",
+                exception.getMessage()
         );
+
+        verify(userRepository)
+                .findByEmail("receiver@example.com");
+
+        verify(passwordEncoder)
+                .matches(
+                        "User12345",
+                        "hashed-password"
+                );
     }
 
 
@@ -82,8 +97,10 @@ class UserServiceTest {
         when(userRepository.findByEmail("student@example.com"))
                 .thenReturn(Optional.of(user));
 
-        when(passwordEncoder.matches("Admin12345", "hashed-password"))
-                .thenReturn(true);
+        when(passwordEncoder.matches(
+                "Admin12345",
+                "hashed-password"
+        )).thenReturn(true);
 
         User result = userService.loginUser(
                 "student@example.com",
@@ -92,15 +109,22 @@ class UserServiceTest {
 
         assertNotNull(result);
         assertEquals(1L, result.getId());
-        assertEquals("student@example.com", result.getEmail());
+        assertEquals(
+                "student@example.com",
+                result.getEmail()
+        );
         assertTrue(result.isActive());
 
-        verify(userRepository).findByEmail("student@example.com");
-        verify(passwordEncoder).matches(
-                "Admin12345",
-                "hashed-password"
-        );
+        verify(userRepository)
+                .findByEmail("student@example.com");
+
+        verify(passwordEncoder)
+                .matches(
+                        "Admin12345",
+                        "hashed-password"
+                );
     }
+
 
     @Test
     void loginUser_shouldRejectWrongPassword() {
@@ -114,8 +138,10 @@ class UserServiceTest {
         when(userRepository.findByEmail("student@example.com"))
                 .thenReturn(Optional.of(user));
 
-        when(passwordEncoder.matches("WrongPassword", "hashed-password"))
-                .thenReturn(false);
+        when(passwordEncoder.matches(
+                "WrongPassword",
+                "hashed-password"
+        )).thenReturn(false);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -130,12 +156,14 @@ class UserServiceTest {
                 exception.getMessage()
         );
 
-        verify(userRepository).findByEmail("student@example.com");
+        verify(userRepository)
+                .findByEmail("student@example.com");
 
-        verify(passwordEncoder).matches(
-                "WrongPassword",
-                "hashed-password"
-        );
+        verify(passwordEncoder)
+                .matches(
+                        "WrongPassword",
+                        "hashed-password"
+                );
     }
 
 
@@ -165,14 +193,37 @@ class UserServiceTest {
 
         assertNotNull(result);
         assertEquals(3L, result.getId());
-        assertEquals("newuser@example.com", result.getEmail());
-        assertEquals("New User", result.getFullName());
-        assertEquals("hashed-password", result.getPasswordHash());
+        assertEquals(
+                "newuser@example.com",
+                result.getEmail()
+        );
+        assertEquals(
+                "New User",
+                result.getFullName()
+        );
+        assertEquals(
+                "hashed-password",
+                result.getPasswordHash()
+        );
 
-        verify(userRepository).existsByEmail("newuser@example.com");
-        verify(passwordEncoder).encode("Password123");
-        verify(userRepository).save(any(User.class));
-        verify(walletRepository).save(any());
+        verify(userRepository)
+                .existsByEmail("newuser@example.com");
+
+        verify(passwordEncoder)
+                .encode("Password123");
+
+        verify(userRepository)
+                .save(any(User.class));
+
+        verify(walletRepository)
+                .save(any());
+
+        verify(auditLogService)
+                .log(
+                        savedUser,
+                        "USER_REGISTERED",
+                        "User registered successfully"
+                );
     }
 
 
@@ -196,12 +247,50 @@ class UserServiceTest {
                 exception.getMessage()
         );
 
-        verify(userRepository).existsByEmail("student@example.com");
+        verify(userRepository)
+                .existsByEmail("student@example.com");
 
-        verify(userRepository, never()).save(any(User.class));
+        verify(userRepository, never())
+                .save(any(User.class));
 
-        verify(passwordEncoder, never()).encode(anyString());
+        verify(passwordEncoder, never())
+                .encode(anyString());
 
-        verify(walletRepository, never()).save(any());
+        verify(walletRepository, never())
+                .save(any());
+
+        verify(auditLogService, never())
+                .log(
+                        any(User.class),
+                        anyString(),
+                        anyString()
+                );
     }
+
+
+    @Test
+        void loginUser_shouldRejectUnknownEmail() {
+
+        when(userRepository.findByEmail("unknown@example.com"))
+                .thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> userService.loginUser(
+                        "unknown@example.com",
+                        "Password123"
+                )
+        );
+
+        assertEquals(
+                "Invalid email or password",
+                exception.getMessage()
+        );
+
+        verify(userRepository)
+                .findByEmail("unknown@example.com");
+
+        verify(passwordEncoder, never())
+                .matches(anyString(), anyString());
+        }
 }
